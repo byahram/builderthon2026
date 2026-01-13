@@ -1,0 +1,30 @@
+"use client";
+
+export function VideoPlayer({ seekTime }: { seekTime?: number }) {
+    const baseUrl = "https://www.youtube.com/embed/OX5gGnn0j6k";
+    const params = new URLSearchParams({
+        modestbranding: "1",
+        rel: "0",
+        autoplay: "0", // Disable autoplay
+    });
+
+    if (seekTime) {
+        params.set("start", seekTime.toString());
+        params.set("autoplay", "1"); // Auto-play when seeking
+    }
+
+    const src = `${baseUrl}?${params.toString()}`;
+
+    return (
+        <div className="relative w-full max-h-[70vh] aspect-video mx-auto bg-black rounded-xl overflow-hidden shadow-lg">
+            <iframe
+                className="w-full h-full"
+                src={src}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerPolicy="strict-origin-when-cross-origin"
+                allowFullScreen
+            />
+        </div>
+    );
+}

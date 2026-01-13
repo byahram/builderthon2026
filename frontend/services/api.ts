@@ -1,0 +1,19 @@
+import axios from 'axios';
+
+const api = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api',
+  timeout: 10000,
+});
+
+export const chatService = {
+  sendMessage: async (message: string) => {
+    // 실제 연동 시: return api.post('/chat', { message });
+
+    // MVP용 가짜 지연 응답
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ status: 200, data: 'echo' }), 1000);
+    });
+  },
+};
+
+export default api;
