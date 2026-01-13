@@ -1,16 +1,16 @@
 "use client";
 
-export function VideoPlayer({ seekTime }: { seekTime?: number }) {
-    const baseUrl = "https://www.youtube.com/embed/OX5gGnn0j6k";
+export function VideoPlayer({ seekTime, videoId = "OX5gGnn0j6k" }: { seekTime?: number, videoId?: string }) {
+    const baseUrl = `https://www.youtube.com/embed/${videoId}`;
     const params = new URLSearchParams({
         modestbranding: "1",
         rel: "0",
-        autoplay: "0", // Disable autoplay
+        autoplay: "0",
     });
 
     if (seekTime) {
         params.set("start", seekTime.toString());
-        params.set("autoplay", "1"); // Auto-play when seeking
+        params.set("autoplay", "1");
     }
 
     const src = `${baseUrl}?${params.toString()}`;

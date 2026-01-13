@@ -13,12 +13,31 @@ const timeToSeconds = (timeStr: string) => {
     return minutes * 60 + seconds;
 };
 
+import { videoService } from "@/services/api";
+import { useEffect } from "react";
+
 export function MainLayout() {
     const [seekTime, setSeekTime] = useState<number | undefined>(undefined);
+    const [currentVideoId, setCurrentVideoId] = useState<string>("");
+
+    useEffect(() => {
+        const initVideo = async () => {
+            const videos = await videoService.getVideos();
+            if (videos.length > 0) {
+                setCurrentVideoId(videos[0].id);
+            }
+        };
+        initVideo();
+    }, []);
 
     const handleSeek = (time: string) => {
         const seconds = timeToSeconds(time);
         setSeekTime(seconds);
+    };
+
+    const handleVideoSelect = (videoId: string) => {
+        setCurrentVideoId(videoId);
+        setSeekTime(0);
     };
 
     return (
@@ -27,8 +46,8 @@ export function MainLayout() {
             <div className="flex-1 overflow-y-auto custom-scrollbar relative bg-[#0f0f0f]">
                 <VideoHeader />
                 <div className="w-full mx-auto px-6 pb-10 pt-2">
-                    <VideoPlayer seekTime={seekTime} />
-                    <CurriculumCarousel />
+                    <VideoPlayer seekTime={seekTime} videoId={currentVideoId} />
+                    <CurriculumCarousel onVideoSelect={handleVideoSelect} currentVideoId={currentVideoId} />
                 </div>
             </div>
 

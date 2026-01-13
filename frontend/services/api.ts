@@ -5,11 +5,22 @@ const api = axios.create({
   timeout: 10000,
 });
 
+import { Video } from "@/types";
+
+export const videoService = {
+  getVideos: async (): Promise<Video[]> => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/video');
+      return response.data.videos;
+    } catch (error) {
+      console.error("Failed to fetch videos:", error);
+      return [];
+    }
+  }
+};
+
 export const chatService = {
   sendMessage: async (message: string) => {
-    // 실제 연동 시: return api.post('/chat', { message });
-
-    // MVP용 가짜 지연 응답
     return new Promise((resolve) => {
       setTimeout(() => resolve({ status: 200, data: 'echo' }), 1000);
     });
