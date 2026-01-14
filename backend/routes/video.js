@@ -5,7 +5,7 @@ const router = express.Router();
 // GET / - Fetch videos from YouTube Playlist
 router.get("/", async (req, res) => {
     const YOUTUBE_API_KEY = process.env.YOUTUBE_API_KEY;
-    const PLAYLIST_ID = "PL6VWo_VHX_Y71grk_aT8AqVM_3QMWh1fD";
+    const PLAYLIST_ID = "PL3hHriAHZgdaaEcMhBCJE8a7lgUHQxgl9";
 
     if (!YOUTUBE_API_KEY) {
         return res.status(500).json({ error: "YOUTUBE_API_KEY is missing in backend .env" });
@@ -52,6 +52,9 @@ router.get("/", async (req, res) => {
             durationMap[item.id] = parseDuration(item.contentDetails.duration);
         });
 
+        console.log(`Raw YouTube API items: ${response.data.items.length}`);
+        response.data.items.forEach(i => console.log(`[RAW TITLE] ${i.snippet.title}`));
+
         const videos = response.data.items.map(item => ({
             id: item.contentDetails.videoId,
             title: item.snippet.title,
@@ -61,11 +64,8 @@ router.get("/", async (req, res) => {
             createdAt: item.snippet.publishedAt
         })).filter(video =>
             video.title !== "Private video" &&
-            video.title !== "Deleted video" &&
-            !video.title.includes("용감한 형제들") &&
-            !video.title.includes("용감한형사들")
+            video.title !== "Deleted video"
         );
-
         res.json({ videos });
     } catch (error) {
         console.error("YouTube API Error:", error.response?.data || error.message);

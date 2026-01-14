@@ -12,11 +12,9 @@ app.get("/", (req, res) => {
     res.send("Hello from Backend!");
 });
 
-// Import Routes
-const videoRoutes = require("./routes/video");
-
 // Mount Routes
-app.use("/api/video", videoRoutes);
+app.use("/api/video", require("./routes/video"));
+app.use("/api/chat", require("./routes/chat"));
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
