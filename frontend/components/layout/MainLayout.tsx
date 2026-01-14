@@ -30,8 +30,11 @@ export function MainLayout() {
         initVideo();
     }, []);
 
-    const handleSeek = (time: string) => {
+    const handleSeek = (time: string, videoId?: string) => {
         const seconds = timeToSeconds(time);
+        if (videoId && videoId !== currentVideoId) {
+            setCurrentVideoId(videoId);
+        }
         setSeekTime(seconds);
     };
 

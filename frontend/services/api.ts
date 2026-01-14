@@ -21,3 +21,15 @@ export const videoService = {
     }
   }
 };
+
+export const chatService = {
+  sendMessage: async (message: string) => {
+    try {
+      const response = await api.post("/chat", { message });
+      return response.data; // { notes: [...] }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      throw error;
+    }
+  }
+};
