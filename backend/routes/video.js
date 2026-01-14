@@ -52,8 +52,7 @@ router.get("/", async (req, res) => {
             durationMap[item.id] = parseDuration(item.contentDetails.duration);
         });
 
-        console.log(`Raw YouTube API items: ${response.data.items.length}`);
-        response.data.items.forEach(i => console.log(`[RAW TITLE] ${i.snippet.title}`));
+
 
         const videos = response.data.items.map(item => ({
             id: item.contentDetails.videoId,
@@ -65,7 +64,7 @@ router.get("/", async (req, res) => {
         })).filter(video =>
             video.title !== "Private video" &&
             video.title !== "Deleted video"
-        );
+        ).slice(0, 5);
         res.json({ videos });
     } catch (error) {
         console.error("YouTube API Error:", error.response?.data || error.message);
