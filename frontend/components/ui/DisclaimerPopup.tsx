@@ -40,8 +40,11 @@ export function DisclaimerPopup() {
 
                     <div className="pr-4 space-y-4">
                         <p className="font-bold text-black text-lg leading-tight">
-                            - 음악 넣으려면 어떻게 해?<br />
-                            - 잔상효과 어떻게 만들어?
+                            1. 잔상효과 어떻게 만들어?<br />
+                            2. 한글 입력 때문에 단축키가 안 먹을 땐 어떻게 해야 해?<br />
+                            3. 컷 편집할 때 자르기 도구/선택 도구 단축키는 뭐야?<br />
+                            4. 영상 어떻게 저장해?<br />
+                            5. 타임라인에서 클립을 더 길게/짧게 보이게 확대·축소하는 방법은 뭐가 있어?
                         </p>
                         <p className="text-zinc-600 font-medium text-base">
                             이런 질문을 하면 영상을 찾아줄 겁니다.
