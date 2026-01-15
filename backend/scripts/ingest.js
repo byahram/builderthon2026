@@ -72,27 +72,46 @@ async function generateEmbedding(text) {
     return response.data[0].embedding;
 }
 
-// Split text into chunks, preserving start time of the first segment
-function chunkTextWithTimestamp(segments, maxLength = 1000) {
+// Split text into chunks with sliding window overlap
+function chunkTextWithTimestamp(segments, maxLength = 500, overlap = 100) {
     const chunks = [];
-    let currentChunk = { text: "", start: 0, end: 0 };
+    let currentSegments = [];
+    let currentLength = 0;
 
-    for (const segment of segments) {
-        // If it's the start of a new chunk, record start time
-        if (currentChunk.text === "") {
-            currentChunk.start = segment.start;
-        }
+    for (let i = 0; i < segments.length; i++) {
+        const segment = segments[i];
+        currentSegments.push(segment);
+        currentLength += segment.text.length;
 
-        // If adding this segment exceeds limit, push current and start new
-        if ((currentChunk.text + segment.text).length > maxLength) {
-            chunks.push(currentChunk);
-            currentChunk = { text: segment.text, start: segment.start, end: segment.end };
-        } else {
-            currentChunk.text += (currentChunk.text ? " " : "") + segment.text;
-            currentChunk.end = segment.end;
+        // If chunk exceeds max length, push it and slide window
+        if (currentLength >= maxLength) {
+            const chunkText = currentSegments.map(s => s.text).join(" ");
+            chunks.push({
+                text: chunkText,
+                start: currentSegments[0].start,
+                end: currentSegments[currentSegments.length - 1].end
+            });
+
+            // Slide window: Remove segments from the start until we remain within overlap limit
+            while (currentLength > overlap && currentSegments.length > 1) {
+                const removed = currentSegments.shift();
+                currentLength -= removed.text.length;
+            }
         }
     }
-    if (currentChunk.text) chunks.push(currentChunk);
+
+    // Add any remaining segments as the final chunk
+    if (currentSegments.length > 0) {
+        const chunkText = currentSegments.map(s => s.text).join(" ");
+
+        if (chunks.length === 0 || chunks[chunks.length - 1].text !== chunkText) {
+            chunks.push({
+                text: chunkText,
+                start: currentSegments[0].start,
+                end: currentSegments[currentSegments.length - 1].end
+            });
+        }
+    }
     return chunks;
 }
 
@@ -103,7 +122,24 @@ function formatTimestamp(seconds) {
     return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 }
 
+async function deleteExistingDocuments(videoId) {
+    console.log(`Deleting existing documents for video: ${videoId}...`);
+    const { error } = await supabase
+        .from('documents')
+        .delete()
+        .contains('metadata', { videoId: videoId });
+
+    if (error) {
+        console.error(`Error deleting documents for ${videoId}:`, error);
+    } else {
+        console.log(`Deleted existing documents for ${videoId}.`);
+    }
+}
+
 async function saveToSupabase(chunks, videoId, videoTitle) {
+    // Delete old chunks first to avoid duplicates
+    await deleteExistingDocuments(videoId);
+
     console.log(`Saving ${chunks.length} chunks to Supabase...`);
 
     for (const [index, chunkObj] of chunks.entries()) {

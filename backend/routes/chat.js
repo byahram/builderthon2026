@@ -37,6 +37,12 @@ async function retrieveContext(query) {
         if (!documents || documents.length === 0) return [];
 
         // 3. Return raw documents for deterministic lookup
+        if (documents) {
+            console.log(`Found ${documents.length} matches:`);
+            documents.forEach((doc, i) => {
+                console.log(`[${i}] Sim: ${doc.similarity?.toFixed(4)} | Time: ${doc.metadata?.timestamp} | Content: ${doc.content.substring(0, 50)}...`);
+            });
+        }
         return documents;
 
     } catch (e) {
