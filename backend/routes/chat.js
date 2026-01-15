@@ -124,7 +124,7 @@ Note: "source_ref_id" should be the integer number from [Ref: N]. If no ref used
 
         // 4. Transform Response
         const content = completion.choices[0].message.content;
-        require('fs').writeFileSync('debug_llm_response.json', content);
+
         console.log("LLM Raw Response:", content);
 
         let result = JSON.parse(content);
