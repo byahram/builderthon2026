@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  app:
+    build: .
+    container_name: node-app
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development          # ← changed to development (important for watch/dev mode)
+    env_file:
+      - .env
+    develop:                          # ← new section required for watch
+      watch:
+        - action: sync+restart        # sync files + restart container (best default for most Node apps)
+          path: .                     # watch entire project (or narrow to ./src, ./app etc. later)
+          target: /app                # ← IMPORTANT: change this to your actual WORKDIR inside container
+                                      # Common values: /app, /usr/src/app, /home/node/app — check your Dockerfile
+          ignore:
+            - node_modules
+            - .git
+            - npm-debug.log
+            - coverage
+            - dist
+            - build
+
+        - action: rebuild             # rebuild image when dependencies change
+          path: package.json
+
+        - action: rebuild
+          path: package-lock.json     # or yarn.lock / pnpm-lock.yaml if you use those

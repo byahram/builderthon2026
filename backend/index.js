@@ -10,6 +10,7 @@ app.use(express.json());
 
 app.use('/api/video', require('./routes/video'));
 app.use('/api/chat', require('./routes/chat'));
+app.use('/api/review', require('./routes/review'));
 
 const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

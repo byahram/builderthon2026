@@ -9,7 +9,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }); // Init OpenAI
 
-const history = require('./history');
+//const history = require('./history');
 
 async function retrieveContext(query) {
     try {
@@ -120,15 +120,12 @@ The output MUST be a JSON object complying with this schema:
             jsonResponse = { notes: [{ id: Date.now().toString(), question: message, summary: responseText, createdAt: new Date().toISOString(), tags: [], sources: [] }] };
         }
 
-        
+        /*
         history.addEntry(
             { message },           
             jsonResponse           
         );
-
-        console.log("Just added entry. Current history length:", history.getAll().length);
-        console.log("Latest entry:", history.getAll().at(-1));
-        
+        */
 
         res.json(jsonResponse);
 

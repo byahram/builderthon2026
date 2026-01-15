@@ -1,7 +1,14 @@
 node_modules/
 .env
+.venv
 .DS_Store
 coverage/
 .vercel/
 npm-debug.log
 yarn-error.log
+embedding/
+routes/chat1.js
+routes/history1.js
+routes/review1.js
+routes/review2.js
+routes/review3.js
