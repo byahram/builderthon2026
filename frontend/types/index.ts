@@ -13,4 +13,10 @@ export interface ReviewNote {
     answer: string;
     videoId: string;
     timestamp: string | null;
+    sources?: {
+        videoId: string;
+        title: string;
+        timestamp: string;
+        thumbnail?: string;
+    }[];
 }
