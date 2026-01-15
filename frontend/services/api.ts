@@ -21,3 +21,29 @@ export const videoService = {
     }
   }
 };
+
+export const chatService = {
+  sendMessage: async (message: string) => {
+    try {
+      const response = await api.post("/chat", { message });
+      return response.data; // { notes: [...] }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      throw error;
+    }
+  }
+};
+
+import { ReviewNote } from "@/types";
+
+export const reviewService = {
+  getReviews: async (): Promise<ReviewNote[]> => {
+    try {
+      const response = await api.get("/review");
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch reviews:", error);
+      return [];
+    }
+  }
+};

@@ -9,14 +9,28 @@ import { ChatSidebar } from "@/components/chat/ChatSidebar";
 
 
 const timeToSeconds = (timeStr: string) => {
-    const [minutes, seconds] = timeStr.split(':').map(Number);
-    return minutes * 60 + seconds;
+    if (!timeStr || typeof timeStr !== 'string') return 0;
+    const parts = timeStr.split(':').map(Number);
+    if (parts.length === 3) {
+        return parts[0] * 3600 + parts[1] * 60 + parts[2];
+    }
+    if (parts.length === 2) {
+        return parts[0] * 60 + parts[1];
+    }
+    return 0;
 };
 
 import { videoService } from "@/services/api";
 import { useEffect } from "react";
 
-export function MainLayout() {
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+
+function MainLayoutContent() {
+    const searchParams = useSearchParams();
+    const initialVideoId = searchParams.get("videoId");
+    const initialTime = searchParams.get("time");
+
     const [seekTime, setSeekTime] = useState<number | undefined>(undefined);
     const [currentVideoId, setCurrentVideoId] = useState<string>("");
 
@@ -24,14 +38,25 @@ export function MainLayout() {
         const initVideo = async () => {
             const videos = await videoService.getVideos();
             if (videos.length > 0) {
-                setCurrentVideoId(videos[0].id);
+                if (initialVideoId) {
+                    setCurrentVideoId(initialVideoId);
+                } else {
+                    setCurrentVideoId(videos[0].id);
+                }
+
+                if (initialTime) {
+                    setSeekTime(timeToSeconds(initialTime));
+                }
             }
         };
         initVideo();
-    }, []);
+    }, [initialVideoId, initialTime]);
 
-    const handleSeek = (time: string) => {
+    const handleSeek = (time: string, videoId?: string) => {
         const seconds = timeToSeconds(time);
+        if (videoId && videoId !== currentVideoId) {
+            setCurrentVideoId(videoId);
+        }
         setSeekTime(seconds);
     };
 
@@ -56,5 +81,13 @@ export function MainLayout() {
                 <ChatSidebar onSeek={handleSeek} />
             </div>
         </div>
+    );
+}
+
+export function MainLayout() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <MainLayoutContent />
+        </Suspense>
     );
 }

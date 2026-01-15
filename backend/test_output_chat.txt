@@ -1,0 +1,4 @@
+Response Status: 200
+Answer: 프리미어 프로에서 속도 지속시간을 설정하려면 중첩 부분을 선택하고 Ctrl-R을 누르거나 마우스 우클릭 후 속도 지속시간을 선택합니다.
+Source Timestamp: 00:00
+Source Title: 프리미어프로강좌_잔상느낌의 복제효과 만들기#1
