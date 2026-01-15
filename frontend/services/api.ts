@@ -33,3 +33,17 @@ export const chatService = {
     }
   }
 };
+
+import { ReviewNote } from "@/types";
+
+export const reviewService = {
+  getReviews: async (): Promise<ReviewNote[]> => {
+    try {
+      const response = await api.get("/review");
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch reviews:", error);
+      return [];
+    }
+  }
+};

@@ -18,7 +18,7 @@ export function VideoPlayer({ seekTime, videoId = "OX5gGnn0j6k" }: { seekTime?: 
     return (
         <div className="relative w-full max-h-[70vh] aspect-video mx-auto bg-black rounded-xl overflow-hidden shadow-lg">
             <iframe
-                key={videoId} // Force re-render on video change
+                key={`${videoId}-${seekTime}`} // Force re-render on video or seek change
                 className="w-full h-full"
                 src={src}
                 title="YouTube video player"

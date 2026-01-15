@@ -1,17 +1,20 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { createClient } = require("@supabase/supabase-js");
+const { createClient } = require('@supabase/supabase-js');
+const { OpenAI } = require('openai');
+const { addEntry } = require('./history');
+const crypto = require('crypto');
 
-const { OpenAI } = require("openai"); // Import OpenAI
+require('dotenv').config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Initialize Clients
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }); // Init OpenAI
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+// Retrieve Relevant Docs (Returns Array)
 async function retrieveContext(query) {
     try {
-        // 1. Generate embedding for query (OpenAI)
+        // 1. Generate Embedding
         const response = await openai.embeddings.create({
             model: "text-embedding-3-small",
             input: query,
@@ -19,41 +22,49 @@ async function retrieveContext(query) {
         });
         const queryEmbedding = response.data[0].embedding;
 
-        // 2. Search Supabase
+        // 2. Search Supabase (RPC)
         const { data: documents, error } = await supabase.rpc('match_documents', {
             query_embedding: queryEmbedding,
-            match_threshold: 0.3, // Lowered from 0.5
-            match_count: 5
+            match_threshold: 0.2, // Lowered from 0.3 to find valid timestamps despite low sim
+            match_count: 20 // Increased to ensure finding deep-link chunks
         });
 
         if (error) {
             console.error("Supabase Search Error:", error);
-            return "";
+            return [];
         }
 
-        if (!documents || documents.length === 0) return "";
+        if (!documents || documents.length === 0) return [];
 
-        // 3. Format Context
-        return documents.map(doc =>
-            `[Video ID: ${doc.metadata.videoId}] [Title: ${doc.metadata.title}] [Time: ${doc.metadata.timestamp || '00:00'}]\n${doc.content}`
-        ).join("\n\n");
+        // 3. Return raw documents for deterministic lookup
+        return documents;
 
     } catch (e) {
         console.error("Context Retrieval Failed:", e);
-        return "";
+        return [];
     }
 }
 
-router.post("/", async (req, res) => {
+router.post('/', async (req, res) => {
     try {
         const { message } = req.body;
 
-        if (!message) {
-            return res.status(400).json({ error: "Message is required" });
-        }
+        // 1. Retrieve Context
+        const documents = await retrieveContext(message); // Now returns array or []
 
-        // 1. Retrieve Context (RAG)
-        const context = await retrieveContext(message); // Currently returns empty string
+        let contextString = "";
+        let referenceMap = [];
+
+        if (Array.isArray(documents) && documents.length > 0) {
+            contextString = documents.map((doc, index) => {
+                const refId = index + 1;
+                referenceMap.push(doc); // index 0 = refId 1
+                const time = doc.metadata.timestamp || doc.metadata.startTime || '00:00';
+                return `[Ref: ${refId}] [Time: ${time}] [Video ID: ${doc.metadata.videoId}] [Title: ${doc.metadata.title}] \n(Content) ${doc.content}`;
+            }).join("\n\n");
+        } else {
+            contextString = "(참고 자료가 없습니다. 일반적인 지식으로 답변하지 말고, 자료 부족을 언급하세요.)";
+        }
 
         // 2. Construct Prompt
         const prompt = `
@@ -63,15 +74,16 @@ router.post("/", async (req, res) => {
 3. 답변은 반드시 [답변 가이드]의 순서를 따르십시오.
 
 [참고 자료]
-${context || "(참고 자료가 없습니다. 일반적인 지식으로 답변하지 말고, 자료 부족을 언급하세요.)"}
+${contextString}
 
 [사용자 질문]
 ${message}
 
 [답변 가이드]
 1. 위 [참고 자료]의 사실에만 기반하여 [사용자 질문]에 답변하십시오.
-2. 답변 내용이 포함된 [참고 자료]의 영상 제목과 Video ID를 명시하십시오.
-3. 해당 영상에서 답변이 나오는 정확한 타임라인을 명시하십시오.
+2. 답변에 가장 결정적인 역할을 한 [참고 자료]의 "Ref 번호"를 기억하십시오. (예: Ref: 3)
+3. [중요] 만약 같은 내용이 여러 Ref에 등장한다면, Time이 00:00이 아닌 쪽을 우선적으로 선택하십시오.
+   - 예: Ref 3이 00:00이고 Ref 10이 06:04라면, 반드시 Ref 10을 선택하십시오.
 4. 만약 [사용자 질문]이 [참고 자료]에 포함돼 있지 않거나 관련이 없다면, 아래 문장만 단독으로 답변하십시오.
 “관련 내용이 참고 자료에 포함돼 있지 않습니다. 다른 표현이나 조금 더 구체적인 키워드로 다시 질문해 보세요.”
 
@@ -85,45 +97,77 @@ The output MUST be a JSON object complying with this schema:
       "summary": "string",
       "createdAt": "string (ISO 8601)",
       "tags": ["string"],
+      "source_ref_id": integer, 
       "sources": [
         { 
           "videoId": "string", 
           "title": "string",
-          "timestamp": "string", 
           "thumbnail": "string"
         }
       ]
     }
   ]
 }
+Note: "source_ref_id" should be the integer number from [Ref: N]. If no ref used, use 0.
         `;
 
-        // 3. Call OpenAI (GPT-4o)
+        // 3. Call OpenAI
         const completion = await openai.chat.completions.create({
-            model: "gpt-4o",
             messages: [
-                { role: "system", content: "You are a helpful assistant. Output JSON only." },
+                { role: "system", content: "You are a helpful study assistant. You prioritize references with specific non-zero timestamps." },
                 { role: "user", content: prompt }
             ],
-            response_format: { type: "json_object" }
+            model: "gpt-4o",
+            response_format: { type: "json_object" },
+            temperature: 0.1, // Reduced for deterministic behavior
         });
 
-        const responseText = completion.choices[0].message.content;
+        // 4. Transform Response
+        const content = completion.choices[0].message.content;
+        require('fs').writeFileSync('debug_llm_response.json', content);
+        console.log("LLM Raw Response:", content);
 
-        let jsonResponse;
-        try {
-            jsonResponse = JSON.parse(responseText);
-        } catch (e) {
-            console.error("JSON Parse Error:", e);
-            jsonResponse = { notes: [{ id: Date.now().toString(), question: message, summary: responseText, createdAt: new Date().toISOString(), tags: [], sources: [] }] };
+        let result = JSON.parse(content);
+
+        // Inject timestamp based on source_ref_id
+        if (result.notes && result.notes.length > 0) {
+            result.notes.forEach(note => {
+                const refId = note.source_ref_id;
+                console.log(`Note ID: ${note.id}, Selected Ref ID: ${refId}`);
+
+                let timestamp = "00:00"; // Default
+
+                if (typeof refId === 'number' && refId > 0 && refId <= referenceMap.length) {
+                    const doc = referenceMap[refId - 1]; // 1-based to 0-based
+                    console.log(`Document Metadata at Ref ${refId}:`, doc.metadata);
+
+                    if (doc.metadata && (doc.metadata.timestamp || doc.metadata.startTime)) {
+                        timestamp = doc.metadata.timestamp || doc.metadata.startTime;
+                    }
+                } else {
+                    console.log("Invalid Ref ID or Ref ID out of range.");
+                }
+                console.log("Final Timestamp:", timestamp);
+
+                // Inject timestamp into sources
+                if (note.sources && note.sources.length > 0) {
+                    note.sources[0].timestamp = timestamp;
+                }
+
+                // Assign ID and creation time
+                note.id = crypto.randomUUID();
+                note.createdAt = new Date().toISOString();
+            });
+
+            // Save to History
+            addEntry({ message }, result);
         }
 
-        res.json(jsonResponse);
+        res.json(result);
 
-    } catch (error) {
-        console.error("Error generating chat response:", error);
-        console.error("Error details:", JSON.stringify(error, Object.getOwnPropertyNames(error)));
-        res.status(500).json({ error: "Failed to generate response", details: error.message });
+    } catch (e) {
+        console.error("Chat Error:", e);
+        res.status(500).json({ error: e.message });
     }
 });
 
