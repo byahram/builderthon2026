@@ -101,6 +101,7 @@ export default function ReviewPage() {
                                         videoTitle={videoTitle}
                                         timeline={review.timestamp || "00:00"}
                                         videoId={review.videoId}
+                                        sources={review.sources} // Pass sources
                                     />
                                 </div>
                             );
