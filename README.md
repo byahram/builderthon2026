@@ -11,12 +11,12 @@
 
 ## 📋 Table of Contents
 
-- [소개 (Introduction)](#-소개-introduction)
-- [기술 스택 (Tech Stack)](#-기술-스택-tech-stack)
-- [개발 방법론 (Methodology)](#-개발-방법론-methodology)
-- [주요 기능 (Key Features)](#-주요-기능-key-features)
-- [결과 (Results)](#-결과-results)
-- [한계점 및 향후 계획 (Discussion)](#-한계점-및-향후-계획-discussion)
+- [소개 (Introduction)](#소개-introduction)
+- [개발 방법론 (Methodology)](#개발-방법론-methodology)
+- [주요 기능 (Key Features)](#주요-기능-key-features)
+- [결과 (Results)](#결과-results)
+- [한계점 및 향후 계획 (Discussion)](#한계점-및-향후-계획-discussion)
+- [기술 스택 (Tech Stack)](#기술-스택-tech-stack)
 
 ---
 
@@ -42,46 +42,11 @@
 
 ---
 
-## 기술 스택 (Tech Stack)
-
-### AI & Machine Learning
-![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
-![GPT-4](https://img.shields.io/badge/GPT--4o-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
-![Whisper](https://img.shields.io/badge/Whisper-412991?style=for-the-badge&logo=openai&logoColor=white)
-
-- **GPT-4o**: 사용자 질문 의도 파악 및 컨텍스트 기반 답변 생성
-- **OpenAI Whisper**: 오디오-텍스트 변환 (타임스탬프 포함)
-- **text-embedding-3**: 시맨틱 검색을 위한 벡터 임베딩
-
-### Backend & Database
-![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-
-- **Node.js**: 서비스 로직 처리 및 API 연동
-- **Supabase (PostgreSQL + pgvector)**: 벡터 데이터베이스
-- **match_documents 함수**: 고성능 시맨틱 검색 엔진
-
-### Frontend
-![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-
-- **Next.js**: 안정적인 웹 애플리케이션 프레임워크
-- **TypeScript**: 타입 안정성 보장
-- **TailwindCSS**: 반응형 UI/UX 구현
-
-### Video Processing
-![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
-
-- **yt-dlc**: YouTube 영상 MP3 추출
-
----
 
 ## 개발 방법론 (Methodology)
 
 
-### RAG Pipeline Architecture
+### tech flow diagram
 
 ```mermaid
 graph TD
@@ -150,15 +115,15 @@ graph TD
 
 ### 1️⃣ AI 챗봇 기반 영상 검색
 
-- 💬 사용자 질문에 대한 즉각적인 답변
-- 🎯 타임스탬프 기반 정확한 영상 구간 제공
-- ✅ 원본 영상으로 답변 검증 가능
+- 사용자 질문에 대한 즉각적인 답변
+- 타임스탬프 기반 정확한 영상 구간 제공
+- 원본 영상으로 답변 검증 가능
 
 ### 2️⃣ 복습공간 (Review Space)
 
-- 📝 모든 질문-답변 자동 저장
-- ⏰ 타임스탬프와 함께 개인 맞춤형 학습 노트 생성
-- 🔄 저장된 구간만 선택적으로 재학습 가능
+- 모든 질문-답변 자동 저장
+- 타임스탬프와 함께 개인 맞춤형 학습 노트 생성
+- 저장된 구간만 선택적으로 재학습 가능
 
 ### 3️⃣ 사용자 워크플로우
 
@@ -203,40 +168,104 @@ graph TD
 
 ---
 
-## 한계점 및 향후 계획 (Discussion)
+## 현재 한계점
 
-### 현재 한계점
+| 한계점              | 설명                                                                 |
+|---------------------|----------------------------------------------------------------------|
+| 🐌 처리 속도        | Whisper + Embedding 모델의 긴 처리 시간 (순차 처리로 인한 병목)       |
+| 📹 지원 범위        | 대규모 영상 및 실시간 스트리밍 미지원                                 |
+| 🌐 소셜 기능        | 동일 코스 수강생 간 질문·답변 공유 및 집단 지식 활용 기능 미구현     |
+| 🔍 검색 정확도      | 복잡한 문맥, 다국어 영상, 의미 단절 chunk에서 오류 발생 가능         |
+| 📊 스케일링         | 벡터 데이터베이스 최적화 부족 (인덱싱·캐싱·쿼리 최적화 미흡)          |
 
-| 한계점 | 설명 |
-|--------|------|
-| 🐌 처리 속도 | Whisper + Embedding 모델의 긴 처리 시간 |
-| 📹 지원 범위 | 대규모 영상 및 실시간 스트리밍 미지원 |
-| 🌐 소셜 기능 | 동일 코스 수강생 간 질문 공유 기능 미구현 |
-| 🔍 검색 정확도 | 복잡한 문맥 및 다국어 영상에서 오류 발생 가능 |
-| 📊 스케일링 | 벡터 데이터베이스 최적화 부족 |
+## 한계점 및 향후 계획 discussion
 
-### 🚀 향후 발전 방향
+### 1. 성능 최적화 (속도 & 효율성)
 
-#### 1. 성능 최적화
-- ☁️ 클라우드 기반 GPU 가속 도입
-- 🔧 문장 수준 청킹 알고리즘 적용
-- ⚡ 병렬 처리 파이프라인 구축
+- ☁️ **클라우드 GPU 가속 + Batch Processing**  
+  OpenAI Batch API 활용 (transcription & embedding 동시 배치 처리) → 비용 50%↓, 속도 3~10배↑  
+  또는 self-hosted faster-whisper (CTranslate2) + GPU 인스턴스 전환
 
-#### 2. 기능 확장
-- 👥 **소셜 기능**: 커뮤니티 기반 집단 지식 활용
-- 🎬 **다중 소스 지원**: Vimeo, Coursera 등 추가
-- 📱 **모바일 앱**: iOS/Android 네이티브 앱 개발
-- 🖼️ **멀티모달 AI**: GPT-4V 통합으로 영상 프레임 분석
+- 🔧 **Semantic Chunking 도입**  
+  고정 길이 → 의미 기반 chunking (문장/단락 유사도 기준 병합)  
+  → 검색 정확도 & 컨텍스트 품질 대폭 향상
 
-#### 3. AI 정확도 향상
-- 🎯 환각 문제 해결을 위한 검증 레이어 추가
-- 🌍 다국어 지원 강화
-- 📊 사용자 피드백 기반 모델 파인튜닝
+- ⚡ **병렬 처리 파이프라인**  
+  Promise.all / worker threads로 다중 비디오 동시 다운로드·전사·임베딩  
+  Supabase bulk upsert + 인덱싱 최적화 (HNSW, IVFFlat)
+
+### 2. 기능 확장
+
+- 👥 **소셜·커뮤니티 기능**  
+  review_notes 기반 사용자 간 질문·답변 공유 피드  
+  해당 영상들에 대해 FAQ 와 같은 FAVQ(Frequently asked video questions) 기능 사용자들끼 공유
+
+- 🎬 **멀티모달 RAG (비디오 + 이미지)**  
+  키프레임 추출 → CLIP / Llama 3.2 Vision / GPT-4o multimodal embedding  
+  → 슬라이드·다이어그램·코드 화면 질문도 답변 가능  
+  VideoRAG 스타일 장시간 비디오 retrieval 지원
+
+- 📱 **모바일 네이티브 앱**  
+  iOS/Android 앱 개발 (React Native or Flutter)  
+  오프라인 캐싱 + 푸시 알림 (새 강의 업데이트)
+
+- 🌍 **다중 플랫폼 지원**  
+  YouTube 외 Vimeo, Coursera, Udemy, Bilibili 등 확장 (yt-dlp extractor 활용)
+
+### 3. AI 정확도 & 신뢰성 향상
+
+- 🎯 **환각 방지 검증 레이어**  
+  Chain-of-Verification / Self-Consistency 체크  
+  Reranking (Cohere Rerank 또는 cross-encoder) → 검색 결과 재정렬
+
+- 🌐 **다국어·도메인 특화 강화**  
+  Whisper-large-v3 + language auto-detection  
+  multilingual embedding (text-embedding-3-large / Nomic-embed-text-v1.5)
+
+- 📊 **사용자 피드백 기반 지속 개선**  
+  review_notes 데이터 → LoRA fine-tuning 데이터셋 구축  
+  thumbs up/down → RLHF 스타일 선호도 학습 준비
+
 
 ---
 
 <div align="center">
 
+## 기술 스택 (Tech Stack)
+
+### AI & Machine Learning
+![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
+![GPT-4](https://img.shields.io/badge/GPT--4o-74aa9c?style=for-the-badge&logo=openai&logoColor=white)
+![Whisper](https://img.shields.io/badge/Whisper-412991?style=for-the-badge&logo=openai&logoColor=white)
+
+- **GPT-4o**: 사용자 질문 의도 파악 및 컨텍스트 기반 답변 생성
+- **OpenAI Whisper**: 오디오-텍스트 변환 (타임스탬프 포함)
+- **text-embedding-3**: 시맨틱 검색을 위한 벡터 임베딩
+
+### Backend & Database
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+
+- **Node.js**: 서비스 로직 처리 및 API 연동
+- **Supabase (PostgreSQL + pgvector)**: 벡터 데이터베이스
+- **match_documents 함수**: 고성능 시맨틱 검색 엔진
+
+### Frontend
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+
+- **Next.js**: 안정적인 웹 애플리케이션 프레임워크
+- **TypeScript**: 타입 안정성 보장
+- **TailwindCSS**: 반응형 UI/UX 구현
+
+### Video Processing
+![YouTube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)
+
+- **yt-dlc**: YouTube 영상 MP3 추출
+
+---
 ### 🌟 비전
 
 **리워치는 교육과 업무 분야에서 AI 기반 영상 학습의 표준 솔루션이 될 잠재력을 지니고 있습니다.**
@@ -245,7 +274,7 @@ graph TD
 
 Made with ❤️ by BUILDERTHON2026 Team | [GitHub Repository](https://github.com) | [Demo](https://demo.link)
 
-[![GitHub stars](https://img.shields.io/github/stars/username/rewatch?style=social)](https://github.com)
-[![GitHub forks](https://img.shields.io/github/forks/username/rewatch?style=social)](https://github.com)
+[![GitHub stars](https://img.shields.io/github/stars/username/rewatch?style=social)](https://github.com/byahram/builderthon2026)
+[![GitHub forks](https://img.shields.io/github/forks/username/rewatch?style=social)](https://builderthon2026.vercel.app/)
 
 </div>
