@@ -93,41 +93,44 @@ graph LR
 ### 🔄 RAG Pipeline Architecture
 
 ```mermaid
-flowchart TD
-    A[YouTube Video URL] --> B[Download MP3 file]
-    B --> C[OpenAI Whisper]
-    C --> D[Transcription with timestamps]
-    D --> E[Chunk text with timestamps]
-    E --> F[OpenAI text-embedding-3]
+graph TD
+    User([User])
+    
+    %% Ingestion Pipeline
+    URL[Youtube Video URL]
+    MP3[MP3 file download]
+    Whisper[Open AI Whisper]
+    Trans[transcription with timestamp]
+    Chunk[Chunk text with timestamp]
+    Embed[Open AI text-embedding-3]
+    DB[(Supabase database <br/> table name: documents <br/> columns: content, metadata, embedding vector)]
+    
+    %% Query Pipeline
+    Query[User Query]
+    QEmbed[User Query embedding]
+    Match[PostgreSQL <br/> match_documents]
+    Context[retrieveContext]
+    Prompt[prompt engineering]
+    GPT[OpenAI gpt-4o]
 
-    User[User] -->|provides URL| A
-    User -->|asks question| Q[User Query]
+    %% Connections
+    User --> URL
+    URL --> MP3
+    MP3 --> Whisper
+    Whisper --> Trans
+    Trans --> Chunk
+    Chunk --> Embed
+    Embed --> DB
 
-    Q --> G[OpenAI text-embedding-3<br>→ query embedding]
-    Q --> H[PostgreSQL / Supabase]
-
-    F --> I[(Supabase Database<br>table: documents<br>columns:<br>• content<br>• metadata<br>• embedding [vector])]
-
-    G --> H
-
-    H --> K[match_documents<br>vector similarity search]
-    K --> L[retrieveContext<br>→ relevant chunks]
-
-    L --> M[Prompt Engineering]
-    M --> N[OpenAI GPT-4o]
-
-    N -->|generates answer| User
-
-    subgraph "Ingestion Pipeline"
-        A --> B --> C --> D --> E --> F --> I
-    end
-
-    subgraph "Query & RAG Pipeline"
-        Q --> G & H --> K --> L --> M --> N --> User
-    end
-
-    style User fill:#f9f,stroke:#333,stroke-width:2px
-    style GPT4o fill:#a8d,stroke:#333
+    User --> Query
+    Query --> Embed
+    Embed --> QEmbed
+    QEmbed --> Match
+    DB --> Match
+    Match --> Context
+    Context --> GPT
+    Prompt --> GPT
+    GPT --> User
 ```
 
 ```
