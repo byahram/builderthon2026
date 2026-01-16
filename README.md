@@ -181,49 +181,33 @@ graph TD
 
 ### 1. 성능 최적화 (속도 & 효율성)
 
-- ☁️ **클라우드 GPU 가속 + Batch Processing**  
-  OpenAI Batch API 활용 (transcription & embedding 동시 배치 처리) → 비용 50%↓, 속도 3~10배↑  
-  또는 self-hosted faster-whisper (CTranslate2) + GPU 인스턴스 전환
+- **클라우드 GPU 가속 + Batch Processing**  
+  OpenAI Batch API 활용 (transcription & embedding 동시 배치 처리) 
 
-- 🔧 **Semantic Chunking 도입**  
+- **Semantic Chunking 도입**  
   고정 길이 → 의미 기반 chunking (문장/단락 유사도 기준 병합)  
-  → 검색 정확도 & 컨텍스트 품질 대폭 향상
+  → chunk size 조절 및 overlap 구간 고정이 아닌 자동 조정 기능으로 sentence / paragraph 별 semantics 파악
 
-- ⚡ **병렬 처리 파이프라인**  
-  Promise.all / worker threads로 다중 비디오 동시 다운로드·전사·임베딩  
+- **병렬 처리 파이프라인**  
+  Promise.all / worker threads로 비디오 동시 다운로드·전사·임베딩  
   Supabase bulk upsert + 인덱싱 최적화 (HNSW, IVFFlat)
+  Pinecone사용 벡터 데이터 다양화 및 search 정확도 향상
 
 ### 2. 기능 확장
 
-- 👥 **소셜·커뮤니티 기능**  
-  review_notes 기반 사용자 간 질문·답변 공유 피드  
-  해당 영상들에 대해 FAQ 와 같은 FAVQ(Frequently asked video questions) 기능 사용자들끼 공유
+- **소셜·커뮤니티 기능**  
+  사용자 간 질문·답변 공유  
+  해당 영상들에 대해 FAQ 와 같은 FAVQ(Frequently asked video questions) 기능 공유
 
-- 🎬 **멀티모달 RAG (비디오 + 이미지)**  
+- **멀티모달 RAG (비디오 + 이미지)**  
   키프레임 추출 → CLIP / Llama 3.2 Vision / GPT-4o multimodal embedding  
   → 슬라이드·다이어그램·코드 화면 질문도 답변 가능  
   VideoRAG 스타일 장시간 비디오 retrieval 지원
 
-- 📱 **모바일 네이티브 앱**  
+- **모바일 네이티브 앱**  
   iOS/Android 앱 개발 (React Native or Flutter)  
   오프라인 캐싱 + 푸시 알림 (새 강의 업데이트)
 
-- 🌍 **다중 플랫폼 지원**  
-  YouTube 외 Vimeo, Coursera, Udemy, Bilibili 등 확장 (yt-dlp extractor 활용)
-
-### 3. AI 정확도 & 신뢰성 향상
-
-- 🎯 **환각 방지 검증 레이어**  
-  Chain-of-Verification / Self-Consistency 체크  
-  Reranking (Cohere Rerank 또는 cross-encoder) → 검색 결과 재정렬
-
-- 🌐 **다국어·도메인 특화 강화**  
-  Whisper-large-v3 + language auto-detection  
-  multilingual embedding (text-embedding-3-large / Nomic-embed-text-v1.5)
-
-- 📊 **사용자 피드백 기반 지속 개선**  
-  review_notes 데이터 → LoRA fine-tuning 데이터셋 구축  
-  thumbs up/down → RLHF 스타일 선호도 학습 준비
 
 
 ---
