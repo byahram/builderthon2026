@@ -92,6 +92,44 @@ graph LR
 
 ### 🔄 RAG Pipeline Architecture
 
+```mermaid
+flowchart TD
+    A[YouTube Video URL] --> B[Download MP3 file]
+    B --> C[OpenAI Whisper]
+    C --> D[Transcription with timestamps]
+    D --> E[Chunk text with timestamps]
+    E --> F[OpenAI text-embedding-3]
+
+    User[User] -->|provides URL| A
+    User -->|asks question| Q[User Query]
+
+    Q --> G[OpenAI text-embedding-3<br>→ query embedding]
+    Q --> H[PostgreSQL / Supabase]
+
+    F --> I[(Supabase Database<br>table: documents<br>columns:<br>• content<br>• metadata<br>• embedding [vector])]
+
+    G --> H
+
+    H --> K[match_documents<br>vector similarity search]
+    K --> L[retrieveContext<br>→ relevant chunks]
+
+    L --> M[Prompt Engineering]
+    M --> N[OpenAI GPT-4o]
+
+    N -->|generates answer| User
+
+    subgraph "Ingestion Pipeline"
+        A --> B --> C --> D --> E --> F --> I
+    end
+
+    subgraph "Query & RAG Pipeline"
+        Q --> G & H --> K --> L --> M --> N --> User
+    end
+
+    style User fill:#f9f,stroke:#333,stroke-width:2px
+    style GPT4o fill:#a8d,stroke:#333
+```
+
 ```
 ┌─────────────────┐
 │  YouTube Video  │
