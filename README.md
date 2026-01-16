@@ -46,7 +46,7 @@
 ## 개발 방법론 (Methodology)
 
 
-### tech flow diagram
+### 기술 플로우
 
 ```mermaid
 graph TD
