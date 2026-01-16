@@ -4,9 +4,6 @@
 
 ### 영상 속 원하는 순간을 AI가 찾아주는 RAG 기반 학습 & 복습 플랫폼
 
-[![BUILDERTHON2026](https://img.shields.io/badge/BUILDERTHON-2026-blue?style=for-the-badge)](https://github.com)
-[![Development Time](https://img.shields.io/badge/Development-96_Hours-orange?style=for-the-badge)](https://github.com)
-[![Status](https://img.shields.io/badge/Status-MVP_Complete-success?style=for-the-badge)](https://github.com)
 
 </div>
 
